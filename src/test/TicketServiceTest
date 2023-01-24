@@ -1,0 +1,42 @@
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class TicketServiceTest {
+    
+    private TicketPaymentService paymentService = new TestPaymentService();
+    private SeatReservationService seatReservationService = new TestSeatReservationService();
+    private TicketService ticketService = new TicketService(paymentService, seatReservationService);
+
+    @Test
+    public void testValidPurchase() {
+        TicketTypeRequest request = new TicketTypeRequest(1, 0, 1, 1);
+        boolean result = ticketService.purchaseTickets(request);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testInvalidPurchase_TooManyTickets() {
+        TicketTypeRequest request = new TicketTypeRequest(1, 0, 10, 11);
+        boolean result = ticketService.purchaseTickets(request);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testInvalidPurchase_InfantWithoutAdult() {
+        TicketTypeRequest request = new TicketTypeRequest(1, 1, 0, 0);
+        boolean result = ticketService.purchaseTickets(request);
+        assertFalse(result);
+    }
+
+    private class TestPaymentService implements TicketPaymentService {
+        public boolean makePayment(int accountId, int amount) {
+            return true;
+        }
+    }
+
+    private class TestSeatReservationService implements SeatReservationService {
+        public boolean reserveSeats(int seatCount) {
+            return true;
+        }
+    }
+}
